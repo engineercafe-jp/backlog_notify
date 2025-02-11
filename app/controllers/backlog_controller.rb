@@ -1,5 +1,6 @@
 class BacklogController < ApplicationController
-  protect_from_forgery with: :null_session  # CSRF対策を無効化 (API用)
+  # protect_from_forgery with: :null_session  # CSRF対策を無効化 (API用)
+  skip_before_action :verify_authenticity_token, only: [ :webhook ]
 
   def webhook
     payload = request.body.read
