@@ -1,6 +1,4 @@
-require "net/http"
-require "uri"
-require "json"
+require "faraday"
 
 class BacklogController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [ :webhook ]
@@ -14,20 +12,11 @@ class BacklogController < ApplicationController
 
     webhook_url = ENV["DISCORD_WEBHOOK_URL"]
 
-    uri = URI.parse(webhook_url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true if uri.scheme == "https"
-
-    req = Net::HTTP::Post.new(uri.path, { "Content-Type" => "application/json" })
-    req.body = "test test test"
-
-    response = http.request(req)
-    if response.is_a?(Net::HTTPSuccess)
-      Rails.logger.info("Message sent to Discord successfully")
-      render json: { message: "Webhook received and sent to Discord successfully" }, status: :ok
-    else
-      Rails.logger.error("Failed to send message to Discord: #{response.code} - #{response.message}")
-      render json: { message: "Failed to send message to Discord" }, status: :internal_server_error
+    conn = Faraday.new
+    conn.post do |req|
+      req.url webhook_url
+      req.headers["Content-Type"] = "application/json"
+      req.body = '{ "content" : "test test test" }'
     end
   end
 
