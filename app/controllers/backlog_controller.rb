@@ -19,7 +19,7 @@ class BacklogController < ApplicationController
     http.use_ssl = true if uri.scheme == "https"
 
     req = Net::HTTP::Post.new(uri.path, { "Content-Type" => "application/json" })
-    req.body = payload.to_s
+    req.body = "test test test"
 
     response = http.request(req)
     if response.is_a?(Net::HTTPSuccess)
