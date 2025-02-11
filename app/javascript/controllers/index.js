@@ -16,8 +16,12 @@ exports.handler = async (event) => {
         const channelId = fs.readFileSync(channelIdPath, 'utf8').trim();
 
         // Discordに送信するメッセージを作成
+        let messageContent = `Backlogの更新情報: ${backlogData.content.text}`;
+        if (messageContent.length > 1000) {
+            messageContent = messageContent.substring(0, 997) + '...'; // 最大1000文字に制限し、末尾に"..."を追加
+        }
         const message = {
-            content: `Backlogの更新情報: ${backlogData.content.text}`, // Backlogのデータからメッセージを作成
+            content: messageContent,
         };
 
         // Webhookを使ってDiscordにメッセージを送信
