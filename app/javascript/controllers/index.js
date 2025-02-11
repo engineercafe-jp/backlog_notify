@@ -6,7 +6,8 @@ const webhookURL = process.env.DISCORD_WEBHOOK_URL; // DiscordのWebhook URLを�
 
 exports.handler = async (event) => {
     try {
-        const backlogData = JSON.parse(event.body);
+        // Backlogからのデータを受信する
+        const backlogData = event.body ? JSON.parse(event.body) : {};
 
         // ログを追加
         console.log('Received raw data:', JSON.stringify(backlogData));
