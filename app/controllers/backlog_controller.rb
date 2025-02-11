@@ -1,9 +1,6 @@
-require 'net/http'
-require 'uri'
-require 'json'
-require 'dotenv'
-
-Dotenv.load
+require "net/http"
+require "uri"
+require "json"
 
 class BacklogController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [ :webhook ]
@@ -16,19 +13,19 @@ class BacklogController < ApplicationController
       Rails.logger.info("Received webhook: #{backlog_data}")
       Rails.logger.info("Received webhook(raw): #{payload}")
 
-      webhook_url = ENV['DISCORD_WEBHOOK_URL']
+      webhook_url = ENV["DISCORD_WEBHOOK_URL"]
 
       message_content = "Backlogの更新情報: #{backlog_data('content', 'text')}"
-      message_content = message_content[0, 997] + '...' if message_content.length > 1000
+      message_content = message_content[0, 997] + "..." if message_content.length > 1000
       message = {
         content: message_content
       }
 
       uri = URI.parse(webhook_url)
       http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true if uri.scheme == 'https'
+      http.use_ssl = true if uri.scheme == "https"
 
-      req = Net::HTTP::Post.new(uri.path, {'Content-Type' => 'application/json'})
+      req = Net::HTTP::Post.new(uri.path, { "Content-Type" => "application/json" })
       req.body = message.to_json
 
       response = http.request(req)
