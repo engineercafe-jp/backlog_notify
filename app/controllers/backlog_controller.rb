@@ -6,6 +6,22 @@ class BacklogController < ApplicationController
   def webhook
     payload = request.body.read
     backlog_data = JSON.parse(payload) rescue {}
+    spaceid = ENV["BACKLOG_SPACE_ID"]
+
+    # 課題URLの生成
+    issue_id = backlog_data.dig("content", "key_id")
+    project_key = backlog_data.dig("project", "projectKey")
+    backlog_url = "https://#{spaceid}.backlog.com/view/#{project_key}-#{issue_id}"
+
+    # 担当者、課題の詳細を取得
+    summary = backlog_data.dig("content", "summary")
+    assignee = backlog_data.dig("content", "assignee", "name")
+    description = backlog_data.dig("content", "description")
+    createduser = backlog_data.dig("createdUser", "name")
+    comment = backlog_data.dig("content", "comment", "content")
+    discord_message = {
+      content: "------\n更新がありました！\nタイトル：#{summary}\n課題URL：#{backlog_url}\n変更者：#{createduser}\n担当者：#{assignee}\n課題の詳細：#{description}\nコメント：#{comment}\n------"
+    }.to_json
 
     Rails.logger.info("Received webhook: #{backlog_data}")
     Rails.logger.info("Received webhook(raw): #{payload}")
@@ -16,35 +32,7 @@ class BacklogController < ApplicationController
     conn.post do |req|
       req.url webhook_url
       req.headers["Content-Type"] = "application/json"
-      req.body = '{ "content" : "test test test" }'
+      req.body = discord_message
     end
   end
-
-  # message_content = "Backlogの更新情報: #{backlog_data('content', 'text')}"
-  # message_content = message_content[0, 997] + "..." if message_content.length > 1000
-  # message = {
-  #   content: message_content
-  # }
-
-  # uri = URI.parse(webhook_url)
-  # http = Net::HTTP.new(uri.host, uri.port)
-  # http.use_ssl = true if uri.scheme == "https"
-
-  # req = Net::HTTP::Post.new(uri.path, { "Content-Type" => "application/json" })
-  # req.body = message.to_json
-
-  # response = http.request(req)
-
-  # if response.is_a?(Net::HTTPSuccess)
-  #   Rails.logger.info("Message sent to Discord successfully")
-  #   render json: { message: "Webhook received and sent to Discord successfully" }, status: :ok
-  # else
-  #   Rails.logger.error("Failed to send message to Discord: #{response.code} - #{response.message}")
-  #   render json: { message: "Failed to send message to Discord" }, status: :internal_server_error
-  # end
-
-  # rescue => e
-  #   Rails.logger.error("Error processing webhook: #{e.message}")
-  #   render json: { message: "Error processing webhook" }, status: :internal_server_error
-  # end
 end
