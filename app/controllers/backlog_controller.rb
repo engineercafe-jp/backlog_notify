@@ -25,9 +25,14 @@ class BacklogController < ApplicationController
     projectid = backlog_data.dig("project", "id") # プロジェクトID（数字）
     due_date = backlog_data.dig("content", "dueDate") # 期限日
 
+    # descriptionの文字数を制限
+    if description && description.length > 200
+      description = description[0, 200] + "..."
+    end
+
     # 送信内容の生成
     discord_message = {
-      content: "------\n更新がありました！\n期限日：#{due_date}\nタイトル：#{summary}\n課題URL：#{backlog_url}\n変更者：#{createduser}\n担当者：#{assignee}\n課題の詳細：#{description}\nコメント：#{comment}\n------"
+      content: "------\n更新がありました！\n期限日：#{due_date}\nタイトル：#{summary}\n課題URL：#{backlog_url}\n変更者：#{createduser}\n担当者：#{assignee}\n課題の詳細：```\n#{description}\n```\nコメント：#{comment}\n------"
     }.to_json
 
     # プロジェクトごとにWebhookを分ける
