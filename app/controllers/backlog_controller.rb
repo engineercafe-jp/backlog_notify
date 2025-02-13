@@ -9,8 +9,8 @@ class BacklogController < ApplicationController
     spaceid = ENV["BACKLOG_SPACE_ID"]
 
     # 課題URLの生成
-    issue_id = backlog_data.dig("content", "key_id")
-    project_key = backlog_data.dig("project", "projectKey")
+    issue_id = backlog_data.dig("content", "key_id")||"不明"
+    project_key = backlog_data.dig("project", "projectKey").to_s.strip
     backlog_url = "https://#{spaceid}.backlog.com/view/#{project_key}-#{issue_id}"
 
     # 担当者、課題の詳細を取得
@@ -19,6 +19,8 @@ class BacklogController < ApplicationController
     description = backlog_data.dig("content", "description")
     createduser = backlog_data.dig("createdUser", "name")
     comment = backlog_data.dig("content", "comment", "content")
+
+    # 送信内容の生成
     discord_message = {
       content: "------\n更新がありました！\nタイトル：#{summary}\n課題URL：#{backlog_url}\n変更者：#{createduser}\n担当者：#{assignee}\n課題の詳細：#{description}\nコメント：#{comment}\n------"
     }.to_json
@@ -26,7 +28,23 @@ class BacklogController < ApplicationController
     Rails.logger.info("Received webhook: #{backlog_data}")
     Rails.logger.info("Received webhook(raw): #{payload}")
 
-    webhook_url = ENV["DISCORD_WEBHOOK_URL"]
+    # プロジェクトごとにWebhookを分ける
+    webhook_url = case project_key
+    when "88765" then ENV["DISCORD_WEBHOOK_URL_1"]
+    when "134840" then ENV["DISCORD_WEBHOOK_URL_2"]
+    when "203433" then ENV["DISCORD_WEBHOOK_URL_3"]
+    when "217826" then ENV["DISCORD_WEBHOOK_URL_4"]
+    when "294737" then ENV["DISCORD_WEBHOOK_URL_5"]
+    when "354234" then ENV["DISCORD_WEBHOOK_URL_6"]
+    when "515286" then ENV["DISCORD_WEBHOOK_URL_7"]
+    when "515288" then ENV["DISCORD_WEBHOOK_URL_8"]
+    when "519661" then ENV["DISCORD_WEBHOOK_URL_9"]
+    when "519665" then ENV["DISCORD_WEBHOOK_URL_10"]
+    when "519666" then ENV["DISCORD_WEBHOOK_URL_11"]
+    when "526323" then ENV["DISCORD_WEBHOOK_URL_12"]
+    when "545810" then ENV["DISCORD_WEBHOOK_URL_13"]
+    else ENV["DISCORD_WEBHOOK_URL"]
+    end
 
     conn = Faraday.new
     conn.post do |req|
