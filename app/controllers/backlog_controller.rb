@@ -17,6 +17,15 @@ class BacklogController < ApplicationController
     spaceid = ENV["BACKLOG_SPACE_ID"]
     backlog_url = "https://#{spaceid}.backlog.com/view/#{project_key}-#{issue_id}"
 
+    # 初期化
+    summary = "なし"
+    assignee = "なし"
+    description = "なし"
+    createduser = "なし"
+    comment = "なし"
+    projectid = "なし"
+    due_date = "なし"
+
     # 送信するプロパティを取得
     summary = backlog_data.dig("content", "summary") # タイトル
     assignee = backlog_data.dig("content", "assignee", "name") # 担当者
