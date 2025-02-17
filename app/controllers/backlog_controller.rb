@@ -64,6 +64,9 @@ class BacklogController < ApplicationController
       ]
     }.to_json
 
+    # discord_messageの中身をログに出力
+    Rails.logger.info("created message: #{discord_message}")
+
     # プロジェクトごとにWebhookを分ける
     webhook_url = case projectid
     when 88765 then ENV["DISCORD_WEBHOOK_URL_1"]
@@ -89,5 +92,4 @@ class BacklogController < ApplicationController
       req.body = discord_message
     end
   end
-  Rails.logger.info("created message: #{discord_message}")
 end
