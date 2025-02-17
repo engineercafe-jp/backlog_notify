@@ -31,18 +31,21 @@ class BacklogController < ApplicationController
       description = description[0, 200] + "..."
     end
 
+    # 初期化で黒に設定
+    color = 0x000000 # 黒
+
     # 期限日に応じてcolorを変更
     color = if due_date
-              days_left = (Date.parse(due_date) - Date.today).to_i
-              if days_left >= 7
-                0x00FF00 # 緑
-              elsif days_left >= 3
-                0xFFFF00 # 黄色
-              else
-                0xFF0000 # 赤
-              end
+      days_left = (Date.parse(due_date) - Date.today).to_i
+      if days_left >= 7
+        0x00FF00 # 緑
+      elsif days_left >= 3
+        0xFFFF00 # 黄色
+      else
+        0xFF0000 # 赤
+      end
     else
-              0x000000 # 黒 (期限日がない場合)
+      0x000000 # 黒 (期限日がない場合)
     end
 
     # 送信内容の生成
@@ -69,7 +72,7 @@ class BacklogController < ApplicationController
 
     # プロジェクトごとにWebhookを分ける
     webhook_url = case projectid
-    when 88765 then ENV["DISCORD_WEBHOOK_URL_1"]
+    when 88765 then "https://discord.com/api/webhooks/1261237837865418852/wiRomPTXwlJJY4BOYF6m_KyifXqzcJsf3xQkR90ixAAnJuNiZ3IlBAlUACZabQwpIkXH"
     when 134840 then ENV["DISCORD_WEBHOOK_URL_2"]
     when 203433 then ENV["DISCORD_WEBHOOK_URL_3"]
     when 217826 then ENV["DISCORD_WEBHOOK_URL_4"]
