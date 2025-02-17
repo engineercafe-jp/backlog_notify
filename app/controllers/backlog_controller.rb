@@ -17,23 +17,14 @@ class BacklogController < ApplicationController
     spaceid = ENV["BACKLOG_SPACE_ID"]
     backlog_url = "https://#{spaceid}.backlog.com/view/#{project_key}-#{issue_id}"
 
-    # 初期化
-    summary = "なし"
-    assignee = "なし"
-    description = "なし"
-    createduser = "なし"
-    comment = "なし"
-    projectid = "なし"
-    due_date = "なし"
-
     # 送信するプロパティを取得
-    summary = backlog_data.dig("content", "summary") # タイトル
-    assignee = backlog_data.dig("content", "assignee", "name") # 担当者
-    description = backlog_data.dig("content", "description") # 課題の詳細
-    createduser = backlog_data.dig("createdUser", "name") # 変更者
-    comment = backlog_data.dig("content", "comment", "content") # コメント
-    projectid = backlog_data.dig("project", "id") # プロジェクトID（数字）
-    due_date = backlog_data.dig("content", "dueDate") # 期限日
+    summary = backlog_data.dig("content", "summary") || "未登録" # タイトル
+    assignee = backlog_data.dig("content", "assignee", "name") || "未登録" # 担当者
+    description = backlog_data.dig("content", "description") || "未登録" # 課題の詳細
+    createduser = backlog_data.dig("createdUser", "name") || "未登録" # 変更者
+    comment = backlog_data.dig("content", "comment", "content") || "未登録" # コメント
+    projectid = backlog_data.dig("project", "id") || "未登録" # プロジェクトID（数字）
+    due_date = backlog_data.dig("content", "dueDate") || "未登録" # 期限日
 
     # descriptionの文字数を制限
     if description && description.length > 200
