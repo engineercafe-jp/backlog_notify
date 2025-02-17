@@ -72,7 +72,7 @@ class BacklogController < ApplicationController
 
     # プロジェクトごとにWebhookを分ける
     webhook_url = case projectid
-    when 88765 then "https://discord.com/api/webhooks/1261237837865418852/wiRomPTXwlJJY4BOYF6m_KyifXqzcJsf3xQkR90ixAAnJuNiZ3IlBAlUACZabQwpIkXH"
+    when 88765 then ENV["DISCORD_WEBHOOK_URL_1"]
     when 134840 then ENV["DISCORD_WEBHOOK_URL_2"]
     when 203433 then ENV["DISCORD_WEBHOOK_URL_3"]
     when 217826 then ENV["DISCORD_WEBHOOK_URL_4"]
