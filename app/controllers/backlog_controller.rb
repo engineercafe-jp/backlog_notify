@@ -47,21 +47,22 @@ class BacklogController < ApplicationController
 
     # 送信内容の生成
     discord_message = {
-      embeds: [
-        {
-          title: "更新がありました！",
-          color: color,
-          fields: [
-            { name: "期限日", value: due_date, inline: true },
-            { name: "変更者", value: createduser, inline: true },
-            { name: "担当者", value: assignee, inline: true },
-            { name: "件名", value: summary, inline: false },
-            { name: "URL", value: backlog_url, inline: false },
-            { name: "課題の詳細", value: "```\n#{description}\n```", inline: false }
-            # { name: "コメント", value: "```\n#{comment}\n```", inline: false }
-          ]
-        }
-      ]
+      # embeds: [
+      #   {
+      #     title: "更新がありました！",
+      #     color: color,
+      #     fields: [
+      #       { name: "期限日", value: due_date, inline: true },
+      #       { name: "変更者", value: createduser, inline: true },
+      #       { name: "担当者", value: assignee, inline: true },
+      #       { name: "件名", value: summary, inline: false },
+      #       { name: "URL", value: backlog_url, inline: false },
+      #       { name: "課題の詳細", value: "```\n#{description}\n```", inline: false }
+      #       # { name: "コメント", value: "```\n#{comment}\n```", inline: false }
+      #     ]
+      #   }
+      # ]
+      content: "------\n更新がありました！\n期限日：#{due_date}\nタイトル：#{summary}\n課題URL：#{backlog_url}\n変更者：#{createduser}\n担当者：#{assignee}\n課題の詳細：#{description}\nコメント：#{comment}\n------"
     }.to_json
 
     # プロジェクトごとにWebhookを分ける
