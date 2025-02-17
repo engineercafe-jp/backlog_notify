@@ -1,4 +1,5 @@
 require "faraday"
+require "date"
 
 class BacklogController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [ :webhook ]
@@ -30,9 +31,37 @@ class BacklogController < ApplicationController
       description = description[0, 200] + "..."
     end
 
+    # 期限日に応じてcolorを変更
+    color = if due_date
+              days_left = (Date.parse(due_date) - Date.today).to_i
+              if days_left >= 7
+                0x00FF00 # 緑
+              elsif days_left >= 3
+                0xFFFF00 # 黄色
+              else
+                0xFF0000 # 赤
+              end
+    else
+              0x000000 # 黒 (期限日がない場合)
+    end
+
     # 送信内容の生成
     discord_message = {
-      content: "------\n更新がありました！\n期限日：#{due_date}\nタイトル：#{summary}\n課題URL：#{backlog_url}\n変更者：#{createduser}\n担当者：#{assignee}\n課題の詳細：```\n#{description}\n```\nコメント：#{comment}\n------"
+      embeds: [
+        {
+          title: "更新がありました！",
+          color: color,
+          fields: [
+            { name: "期限日", value: due_date, inline: true },
+            { name: "変更者", value: createduser, inline: true },
+            { name: "担当者", value: assignee, inline: true },
+            { name: "件名", value: summary, inline: false },
+            { name: "URL", value: backlog_url, inline: false },
+            { name: "課題の詳細", value: "```\n#{description}\n```", inline: false },
+            { name: "コメント", value: "```\n#{comment}\n```", inline: false }
+          ]
+        }
+      ]
     }.to_json
 
     # プロジェクトごとにWebhookを分ける
@@ -60,4 +89,5 @@ class BacklogController < ApplicationController
       req.body = discord_message
     end
   end
+  Rails.logger.info("created message: #{discord_message}")
 end
