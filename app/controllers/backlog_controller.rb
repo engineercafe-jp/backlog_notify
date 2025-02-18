@@ -82,6 +82,7 @@ class BacklogController < ApplicationController
     when 519666 then ENV["DISCORD_WEBHOOK_URL_11"]
     when 526323 then ENV["DISCORD_WEBHOOK_URL_12"]
     when 545810 then ENV["DISCORD_WEBHOOK_URL_13"]
+    when 583034 then ENV["DISCORD_WEBHOOK_URL_14"]
     else ENV["DISCORD_WEBHOOK_URL"]
     end
 
