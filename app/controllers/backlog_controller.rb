@@ -24,18 +24,17 @@ class BacklogController < ApplicationController
     createduser = backlog_data.dig("createdUser", "name") || "未登録" # 変更者
     comment = backlog_data.dig("content", "comment", "content") || "未登録" # コメント
     projectid = backlog_data.dig("project", "id") || "未登録" # プロジェクトID（数字）
-    due_date = backlog_data.dig("content", "dueDate") || "未登録" # 期限日
+    due_date = backlog_data.dig("content", "dueDate").presence || "登録してください" # 期限日
 
     # descriptionの文字数を制限
     if description && description.length > 200
       description = description[0, 200] + "..."
     end
 
-    # 初期化で黒に設定
-    color = 0x000000 # 黒
-
-    # 期限日に応じてcolorを変更
-    color = if due_date
+    # due_dateが空の場合には登録を促し、色を黒く設定する
+    color = if due_date == "登録してください"
+      0x000000 # 黒
+    else
       days_left = (Date.parse(due_date) - Date.today).to_i
       if days_left >= 7
         0x00FF00 # 緑
@@ -44,8 +43,6 @@ class BacklogController < ApplicationController
       else
         0xFF0000 # 赤
       end
-    else
-      0x000000 # 黒 (期限日がない場合)
     end
 
     # 送信内容の生成
