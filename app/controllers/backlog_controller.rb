@@ -18,23 +18,24 @@ class BacklogController < ApplicationController
     backlog_url = "https://#{spaceid}.backlog.com/view/#{project_key}-#{issue_id}"
 
     # 送信するプロパティを取得
-    summary = backlog_data.dig("content", "summary") || "未登録" # タイトル
-    assignee = backlog_data.dig("content", "assignee", "name") || "未登録" # 担当者
-    description = backlog_data.dig("content", "description") || "未登録" # 課題の詳細
-    createduser = backlog_data.dig("createdUser", "name") || "未登録" # 変更者
-    comment = backlog_data.dig("content", "comment", "content") || "未登録" # コメント
-    projectid = backlog_data.dig("project", "id") || "未登録" # プロジェクトID（数字）
-    due_date = backlog_data.dig("content", "dueDate").presence || "登録してください" # 期限日
+    summary = backlog_data.dig("content", "summary") # タイトル
+    assignee = backlog_data.dig("content", "assignee", "name") # 担当者
+    description = backlog_data.dig("content", "description") # 課題の詳細
+    createduser = backlog_data.dig("createdUser", "name") # 変更者
+    comment = backlog_data.dig("content", "comment", "content") # コメント
+    projectid = backlog_data.dig("project", "id") # プロジェクトID（数字）
+    due_date = backlog_data.dig("content", "dueDate") # 期限日
 
     # descriptionの文字数を制限
     if description && description.length > 200
       description = description[0, 200] + "..."
     end
 
-    # due_dateが空の場合には登録を促し、色を黒く設定する
-    color = if due_date == "登録してください"
-      0x000000 # 黒
-    else
+    # 初期化で黒に設定
+    color = 0x000000 # 黒
+
+    # 期限日に応じてcolorを変更
+    color = if due_date
       days_left = (Date.parse(due_date) - Date.today).to_i
       if days_left >= 7
         0x00FF00 # 緑
@@ -43,22 +44,23 @@ class BacklogController < ApplicationController
       else
         0xFF0000 # 赤
       end
+    else
+      0x000000 # 黒 (期限日がない場合)
     end
 
     # 送信内容の生成
     discord_message = {
       embeds: [
         {
-          title: "更新がありました！",
           color: color,
           fields: [
+            { name: "コメント", value: "```\n#{comment}\n```", inline: false },
             { name: "期限日", value: due_date, inline: true },
             { name: "変更者", value: createduser, inline: true },
             { name: "担当者", value: assignee, inline: true },
             { name: "件名", value: summary, inline: false },
             { name: "URL", value: backlog_url, inline: false },
-            { name: "課題の詳細", value: "```\n#{description}\n```", inline: false },
-            { name: "コメント", value: "```\n#{comment}\n```", inline: false }
+            { name: "課題の詳細", value: "```\n#{description}\n```", inline: false }
           ]
         }
       ]
@@ -82,7 +84,6 @@ class BacklogController < ApplicationController
     when 519666 then ENV["DISCORD_WEBHOOK_URL_11"]
     when 526323 then ENV["DISCORD_WEBHOOK_URL_12"]
     when 545810 then ENV["DISCORD_WEBHOOK_URL_13"]
-    when 583034 then ENV["DISCORD_WEBHOOK_URL_14"]
     else ENV["DISCORD_WEBHOOK_URL"]
     end
 
